@@ -17,20 +17,25 @@ simple-license-server
 A simple server for checking issued licenses with tokens
 
 ## Table of contents:
-- [Quick start](#quick-start)
-- [Usage](#usage)
-- [Configuration file](#configuration-file)
-- [Examples of Rest Requests](#examples-of-rest-requests)
-- - [get](#get)
-- - - [ping](#ping)
-- - [post](#post)
-- - - [checkKey](#checkkey)
-- [Generating a new token](#generating-a-new-token)
-- [Use with the pm2](#generating-a-new-token)
-- - [Install pm2:](#install-pm2)
-- - [Server startup via pm2:](#server-startup-via-pm2)
-- - [available commands to configure:](#available-commands-to-configure)
-- [License](#license)
+- [simple-license-server](#simple-license-server)
+  - [Table of contents:](#table-of-contents)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
+  - [Configuration file](#configuration-file)
+  - [Examples of Rest Requests](#examples-of-rest-requests)
+    - [get:](#get)
+      - [ping](#ping)
+    - [post:](#post)
+      - [checkToken](#checktoken)
+      - [checkSession](#checksession)
+      - [beginSession](#beginsession)
+      - [endSession](#endsession)
+  - [Generating a new token](#generating-a-new-token)
+  - [Use with the pm2](#use-with-the-pm2)
+    - [Install pm2:](#install-pm2)
+    - [Server startup via pm2:](#server-startup-via-pm2)
+    - [available commands to configure:](#available-commands-to-configure)
+  - [License](#license)
 ## Quick Start
 First, install the dependencies
 ```
@@ -65,19 +70,42 @@ This example will use the [axios](https://axios-http.com/) module
 //Expected output: OK
 ```
 ### post:
-#### checkKey
+#### checkToken
 ```js
-    axios.post('http://ip_on_where_the_server_is:port/checkKey', {token: "токен сегенерированным сервером"})
+    axios.post('http://ip_on_where_the_server_is:port/checkToken', {token: "токен сегенерированным сервером"})
         .then(res => console.log(res.data))
 //Expected output: 
-// { 
-// "checkStatus": true 
-// }
+// { success: true, message: 'License avaiable.' }
 ```
+
+#### checkSession
+```js
+    axios.post('http://ip_on_where_the_server_is:port/checkSession', {token: "токен сегенерированным сервером"})
+        .then(res => console.log(res.data))
+//Expected output: 
+// { success: true, message: `License used x.`}
+```
+
+#### beginSession
+```js
+    axios.post('http://ip_on_where_the_server_is:port/beginSession', {token: "токен сегенерированным сервером"})
+        .then(res => console.log(res.data))
+//Expected output: 
+// { success: true, message: 'Session started successfully.' }
+```
+
+#### endSession
+```js
+    axios.post('http://ip_on_where_the_server_is:port/endSession', {token: "токен сегенерированным сервером"})
+        .then(res => console.log(res.data))
+//Expected output: 
+// { success: true, message: 'Session ended successfully.' }
+```
+
 ## Generating a new token
 Example with token expiration in 10 days
 ```
-node . -nl 10
+node . -nl 10 -m account@mail.com -nm 5
 ```
 The new token will be added to the license list file and will be displayed in the console
 
