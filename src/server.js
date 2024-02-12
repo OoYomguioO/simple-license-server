@@ -10,7 +10,6 @@ app.get('/ping', (req, res) => {
 })
 
 app.post('/checkToken', (req, res) => {
-    console.log(req)
     res.send({
         checkStatus: licensee.checkToken(req.body.token)
     })
