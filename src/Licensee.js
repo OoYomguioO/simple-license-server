@@ -59,21 +59,21 @@ class Licensee {
         if (!res) {
             return { success: false, message: 'Invalid license key.' };
         }
-        if (res.used == true) {
-            return { success: false, message: 'License is already in use.' };
+        if (res.used >= res.max) {
+            return { success: false, message: `License is already in use by ${res.used} sessions.` };
         }
-        return { success: true, message: 'License unused.' };
+        return { success: true, message: `License used ${res.used}.`};
     }
 
     beginSession(token) {
         let res = this._map.get(token);
         if (res) {
-            if (!res.used) {
-                res.used = true;
+            if (res.used >= res.max){
+                return { success: false, message: 'License is already in use.' };
+            }else{
+                res.used += 1;
                 this._save_to_file(Object.fromEntries(this._map));
                 return { success: true, message: 'Session started successfully.' };
-            } else {
-                return { success: false, message: 'License is already in use.' };
             }
         } else {
             return { success: false, message: 'Invalid license key.' };
@@ -83,9 +83,14 @@ class Licensee {
     endSession(token) {
         let res = this._map.get(token);
         if (res) {
-            res.used = false;
-            this._save_to_file(Object.fromEntries(this._map));
-            return { success: true, message: 'Session ended successfully.' };
+            if (res.used <= 0){
+                return { success: true, message: 'WTF !!?? How did you do that ?' };
+            }
+            else{
+                res.used -= 1;
+                this._save_to_file(Object.fromEntries(this._map));
+                return { success: true, message: 'Session ended successfully.' };
+            }
         } else {
             return { success: false, message: 'Invalid license key.' };
         }
@@ -99,7 +104,7 @@ class Licensee {
         return randtoken.generate(16)
     }
 
-    static addToken(file_path, expireDate) {
+    static addToken(file_path, expireDate, mail, number_max) {
         if (!file_path) throw new Error('no path for map')
         let absolute_path = Util.checkPath(file_path, 'file', 'licenseList')
         try {
@@ -112,11 +117,20 @@ class Licensee {
             else {
                 expDate = Date.now() + expireDate
             }
+            if (!mail) {
+                mail = "None"
+            }
+            if (!number_max) {
+                number_max = 1 // 1 utilisation par token par defaut
+            }
+
             let token = this.generateToken()
             map.set(`${token}`, {
                 expired: false,
                 expireDate: expDate,
-                used: false
+                used: 0,
+                account: mail,
+                max: number_max
             })
             try {
                 let jsonString = JSON.stringify(Object.fromEntries(map))

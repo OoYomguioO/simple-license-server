@@ -51,6 +51,12 @@ class Server {
         console.log("\x1b[32m",`the server is listening ${this._ip}:${this._port}`)
         console.log("\x1b[0m")
         licensee = new Licensee(licenseList_filePath, updateInterval)
+        // remise à zéro des seesions en cours
+        for (const [clef, valeur] of licensee._map) {
+            valeur.used = 0;
+        }
+        licensee._save_to_file(Object.fromEntries(licensee._map));
+
     }
 }
 
