@@ -45,9 +45,50 @@ class Licensee {
 
     checkToken(token) {
         let res = this._map.get(token)
-        if (!res) return false;
-        if (res.expireDate <= Date.now()) return false;
-        return !res.expired;
+        if (!res){
+            return { success: false, message: 'Invalid license key.' };
+        }
+        if (res.expireDate >= Date.now()){
+            return { success: true, message: 'License avaiable.' };
+        } 
+        return { success: false, message: 'licensed expired' };;
+    }
+
+    checkSession(token) {
+        let res = this._map.get(token)
+        if (!res) {
+            return { success: false, message: 'Invalid license key.' };
+        }
+        if (res.used == true) {
+            return { success: false, message: 'License is already in use.' };
+        }
+        return { success: true, message: 'License unused.' };
+    }
+
+    beginSession(token) {
+        let res = this._map.get(token);
+        if (res) {
+            if (!res.used) {
+                res.used = true;
+                this._save_to_file(Object.fromEntries(this._map));
+                return { success: true, message: 'Session started successfully.' };
+            } else {
+                return { success: false, message: 'License is already in use.' };
+            }
+        } else {
+            return { success: false, message: 'Invalid license key.' };
+        }
+    }
+
+    endSession(token) {
+        let res = this._map.get(token);
+        if (res) {
+            res.used = false;
+            this._save_to_file(Object.fromEntries(this._map));
+            return { success: true, message: 'Session ended successfully.' };
+        } else {
+            return { success: false, message: 'Invalid license key.' };
+        }
     }
 
     updateMap(){
@@ -74,7 +115,8 @@ class Licensee {
             let token = this.generateToken()
             map.set(`${token}`, {
                 expired: false,
-                expireDate: expDate
+                expireDate: expDate,
+                used: false
             })
             try {
                 let jsonString = JSON.stringify(Object.fromEntries(map))

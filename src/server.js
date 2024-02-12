@@ -9,9 +9,28 @@ app.get('/ping', (req, res) => {
     res.sendStatus(200)
 })
 
-app.post('/checkKey', (req, res) => {
+app.post('/checkToken', (req, res) => {
+    console.log(req)
     res.send({
         checkStatus: licensee.checkToken(req.body.token)
+    })
+})
+
+app.post('/checkSession', (req, res) => {
+    res.send({
+        checkSession: licensee.checkSession(req.body.token)
+    })
+})
+
+app.post('/beginSession', (req, res) => {
+    res.send({
+        beginSession: licensee.beginSession(req.body.token)
+    })
+})
+
+app.post('/endSession', (req, res) => {
+    res.send({
+        endSession: licensee.endSession(req.body.token)
     })
 })
 
