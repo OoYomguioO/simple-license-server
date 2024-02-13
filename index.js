@@ -5,7 +5,7 @@ const config = require('./config.json')
 const {Server, Licensee} = require('./src')
 const axios = require("axios");
 
-console.log("\x1b[90m", 'simple-license-server © SEMANTIC TS')
+console.log("\x1b[90m", 'simple-license-server © OoYomguioO')
 
 if (process.argv[2]) {
     let arg = process.argv[2];
